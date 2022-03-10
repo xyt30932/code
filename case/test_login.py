@@ -1,7 +1,8 @@
 
 from api.login import Login
 from parameterized import parameterized
-import requests,unittest,json,app
+import requests,unittest,json,app,logging
+from utils import common_assert01
 s = requests.session()
 host = "https://www.laihua.com"
 
@@ -19,7 +20,6 @@ def bulid_data():
             status = case_data.get("status")
             msg = case_data.get("msg")
             test_data.append((account, psw, status_code,status,msg))
-            # print(test_data)
     return test_data
 
 class TestLogin(unittest.TestCase):
@@ -33,12 +33,12 @@ class TestLogin(unittest.TestCase):
 
     @parameterized.expand(bulid_data())
 
-    def test02_psw_error(self, account, psw, status_code, status, msg):
+    def test01_psw_error(self, account, psw, status_code, status, msg):
         response = self.login_api.login(account, psw)
-        # print(response.text)
         self.assertEqual(status_code, response.status_code)
         self.assertEqual(status, response.json().get("code"))
         self.assertIn(msg, response.json().get("msg"))
 
-
-
+    def test02_success(self):
+        response = self.login_api.login("test003", 123456)
+        common_assert01(self, response, 200, 200)
